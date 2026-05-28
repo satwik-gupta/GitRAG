@@ -20,6 +20,8 @@ import tempfile
 from pathlib import Path
 from typing import Optional, Tuple
 
+import subprocess
+
 from tenacity import (
     AsyncRetrying,
     retry_if_exception_type,
@@ -54,38 +56,27 @@ class AsyncGitHubCloner:
             return url.replace("https://", f"https://{self._token}@", 1)
         return url
 
-    async def _run_git(
-        self,
-        *args: str,
-        cwd: Optional[str] = None,
-    ) -> Tuple[int, str, str]:
-        """
-        Run `git <args>` as an async subprocess.
-        Returns (returncode, stdout, stderr).
-        Raises CloneError on timeout.
-        """
-        proc = await asyncio.create_subprocess_exec(
-            "git",
-            *args,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-            cwd=cwd,
-        )
-        try:
-            stdout_b, stderr_b = await asyncio.wait_for(
-                proc.communicate(),
-                timeout=settings.clone_timeout_seconds,
-            )
-        except asyncio.TimeoutError:
-            proc.kill()
-            await proc.communicate()
-            raise CloneError(
-                f"git {args[0]!r} timed out after "
-                f"{settings.clone_timeout_seconds}s"
-            )
+    async def _run_git(self, *args: str, cwd: Optional[str] = None) -> Tuple[int, str, str]:
+        def run():
+            try:
+                completed = subprocess.run(
+                    ["git", *args],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    cwd=cwd,
+                    timeout=settings.clone_timeout_seconds,
+                )
+                return (
+                    completed.returncode,
+                    completed.stdout.decode(errors="replace"),
+                    completed.stderr.decode(errors="replace"),
+                )
+            except subprocess.TimeoutExpired as exc:
+                raise CloneError(
+                    f"git {args[0]!r} timed out after {settings.clone_timeout_seconds}s"
+                ) from exc
 
-        return proc.returncode, stdout_b.decode(errors="replace"), stderr_b.decode(errors="replace")
-
+        return await asyncio.to_thread(run)
     # ── Public API ─────────────────────────────────────────────────────────
 
     async def clone(

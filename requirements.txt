@@ -1,0 +1,43 @@
+# Production dependencies for GitRAG
+
+# Web framework
+fastapi>=0.111.0
+uvicorn[standard]>=0.29.0
+
+# Database
+sqlalchemy[asyncio]>=2.0.0
+asyncpg>=0.29.0
+alembic>=1.13.0
+psycopg2-binary>=2.9.9
+
+# Vector DB
+qdrant-client>=1.9.0
+
+# Embeddings & ML
+sentence-transformers>=3.0.0
+torch>=2.3.0
+numpy>=1.26.0
+
+# AST parsing
+tree-sitter>=0.22.0
+tree-sitter-python>=0.22.0
+tree-sitter-java>=0.22.0
+tree-sitter-go>=0.22.0
+tree-sitter-cpp>=0.22.0
+
+# NLP (query normalisation)
+spacy>=3.7.0
+
+# LLM
+google-genai>=0.5.0
+
+# Config
+pydantic>=2.7.0
+pydantic-settings>=2.2.0
+
+# Async utilities
+tenacity>=8.3.0
+aiofiles>=23.2.0
+
+# BM25 sparse scoring
+rank-bm25>=0.2.2

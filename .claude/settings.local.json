@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p \"C:\\\\Users\\\\satwi\\\\.claude\\\\projects\\\\D--VibeCode-Marthon-GitRAG\\\\memory\")"
+    ]
+  }
+}
