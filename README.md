@@ -44,7 +44,7 @@
 | **Dense Embedder** | `BAAI/bge-base-en-v1.5` via sentence-transformers | 768-dim |
 | **Sparse Embedder** | BM25 (vocabulary-hash, no index file needed) | — |
 | **Reranker** | `cross-encoder/ms-marco-MiniLM-L-6-v2` | — |
-| **LLM** | Anthropic claude-sonnet-4-6 | — |
+| **LLM** | Google Gemini gemini-2.5-flash-lite | — |
 | **AST Parsing** | tree-sitter 0.22+ (Python / Java / Go / C++) | — |
 | **Query NLP** | spaCy `en_core_web_sm` | 3.7+ |
 | **Retry Logic** | tenacity | 8.3+ |
@@ -117,7 +117,7 @@ User Query
         │                 │ ≤8 chunks
         │                 ▼
         │  ┌─────────────────────────────────────────────┐
-        │  │  6. LLM Generation (claude-sonnet-4-6)       │
+        │  │  6. LLM Generation (Google Gemini gemini-2.5-flash-lite)       │
         │  │     system: cite every source inline         │
         │  │     answer prefixed with [file#section Lx-y] │
         │  └──────────────┬──────────────────────────────┘
@@ -165,7 +165,7 @@ POST /generate-docs
 │       a. select context keys → focused topology string  │
 │       b. append last 3 sections (continuity summary)    │
 │       c. append section instruction text                │
-│       d. call LLM (claude-sonnet-4-6, per-section tokens)│
+│       d. call LLM (Google Gemini gemini-2.5-flash-lite, per-section tokens)│
 └──────────────────────────┬──────────────────────────────┘
                            │
                            ▼
@@ -370,8 +370,8 @@ QDRANT_SHARD_NUMBER=4
 QDRANT_VECTOR_SIZE=768                 # must match embedding model output dim
 
 # ── LLM ─────────────────────────────────────────────────────────────────────
-ANTHROPIC_API_KEY=sk-ant-...           # Required — get from console.anthropic.com
-LLM_MODEL=claude-sonnet-4-6
+GEMINI_API_KEY=YOUR_GOOGLE_GENAI_API_KEY  # Required — get from Google Cloud Generative AI / API key
+LLM_MODEL=gemini-2.5-flash-lite
 LLM_MAX_TOKENS=4096
 
 # ── Embedding ────────────────────────────────────────────────────────────────
@@ -402,7 +402,7 @@ MAX_MERMAID_REPAIR_ATTEMPTS=3          # LLM auto-repair retries per broken diag
 DOC_SECTION_MAX_TOKENS=2048            # max LLM tokens per document section
 ```
 
-> **Note:** `ANTHROPIC_API_KEY` is the only hard requirement. All other values have sensible defaults that work out of the box for a local setup.
+> **Note:** `GEMINI_API_KEY` is the only hard requirement. All other values have sensible defaults that work out of the box for a local setup.
 
 ---
 
@@ -444,7 +444,7 @@ python -m spacy download en_core_web_sm
 
 ```bash
 cp .env.example .env
-# Edit .env — set ANTHROPIC_API_KEY at minimum
+# Edit .env — set GEMINI_API_KEY at minimum
 ```
 
 ### 6. Set up the database
@@ -814,8 +814,8 @@ All settings live in [`app/config.py`](app/config.py) and are loaded from the `.
 | `QDRANT_GRPC_PORT` | `6334` | Qdrant gRPC port (preferred) |
 | `QDRANT_SHARD_NUMBER` | `4` | Collection shards |
 | `QDRANT_VECTOR_SIZE` | `768` | Must match embedding model output dim |
-| `ANTHROPIC_API_KEY` | _(required)_ | Anthropic API key |
-| `LLM_MODEL` | `claude-sonnet-4-6` | Anthropic model ID |
+| `GEMINI_API_KEY` | _(required)_ | Google Gemini / Generative AI API key |
+| `LLM_MODEL` | `gemini-2.5-flash-lite` | Google Gemini model ID |
 | `LLM_MAX_TOKENS` | `4096` | Max tokens for RAG answers |
 
 ### Retrieval Settings
